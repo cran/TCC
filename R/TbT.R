@@ -11,7 +11,8 @@ do_TbT <- function(data, data.cl, sample_num = 10000){
 
     ###  Step 2: DEG identification  ###
     groups <- list(NDE=rep(1, length(data.cl)), DE=data.cl)
-    RPM <- sweep(data, 2, 1000000/colSums(data), "*")
+    norm_f_RPM=1000000/colSums(data)
+    RPM <- sweep(data, 2, norm_f_RPM, "*")
     data <- round(RPM)
     once_normalized <- new("countData", data=as.matrix(data), replicates=data.cl, libsizes=colSums(data)*norm_f_TMM, groups=groups)
     once_normalized.NB <- getPriors.NB(once_normalized, samplesize=sample_num, estimation="QL", cl=NULL)
@@ -29,14 +30,20 @@ do_TbT <- function(data, data.cl, sample_num = 10000){
     norm_f_TbTorg <- d$samples$norm.factors*colSums(data)/colSums(RAW)
     norm_f_TbT <- norm_f_TbTorg/mean(c(mean(norm_f_TbTorg[data.cl==1]),mean(norm_f_TbTorg[data.cl==2])))
 
+    data <- RPM
+    meanA <- log2(apply(data[,data.cl==1], 1, mean))
+    meanB <- log2(apply(data[,data.cl==2], 1, mean))
+    Aval <- (meanA + meanB)/2
+    Mval <- meanB - meanA
+
     ###  calculation of PA value (degree of biased expression)  ###
     RPM_TMM <- sweep(RPM, 2, 1/norm_f_TMM, "*")
     data <- RPM_TMM
     logratio <- log2(apply(data[,data.cl==2], 1, mean)) - log2(apply(data[,data.cl==1], 1, mean))
     PA <- sum(logratio[rank_bayseq < NDEG] < 0)/NDEG
 
-    retval <- list(norm_f_TbT, PDEG, PA, obj_DEGn, obj_DEGy, norm_f_TMM, norm_f_TbTorg, data.cl, data)
-    names(retval) <- c("norm_f_TbT", "PDEG", "PA", "nonDEG_posi", "DEG_posi", "norm_f_TMM", "norm_f_TbTorg", "data.cl", "data")
+    retval <- list(norm_f_TbT, Aval, Mval, PDEG, PA, obj_DEGn, obj_DEGy, norm_f_TMM, norm_f_TbTorg, data.cl, data)
+    names(retval) <- c("norm_f_TbT", "Mval", "Aval", "PDEG", "PA", "nonDEG_posi", "DEG_posi", "norm_f_TMM", "norm_f_TbTorg", "data.cl", "data")
     return(retval)
 }
 
@@ -61,10 +68,10 @@ exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.use
     }
     rank_edgeR <- rank(FDR)
     retval <- cbind(names, out$table, FDR, rank_edgeR) 
-    return(list(data=retval, norm_f_TbT=tbtout$norm_f_TbT, counts=counts,  group = group))
+    return(list(data=retval, norm_f_TbT=tbtout$norm_f_TbT, Mval=tbtout$Mval, Aval=tbtout$Aval, counts=counts,  group = group))
 }
 
-if (edgeR_v > 2 | edgeR_v[[2]] >= 7)
+if (edgeR_v[[1]] > 2 | edgeR_v[[2]] >= 7)
 exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.used = NULL, span = NULL, grid.length=500){
     tbtout <- do_TbT(counts, group, sample_num)
     d <- DGEList(counts=counts, group=group)
@@ -82,5 +89,5 @@ exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.use
     }
     rank_edgeR <- rank(FDR)
     retval <- cbind(names, out$table, FDR, rank_edgeR) 
-    return(list(data=retval, norm_f_TbT=tbtout$norm_f_TbT, counts=counts,  group = group))
+    return(list(data=retval, norm_f_TbT=tbtout$norm_f_TbT, Mval=tbtout$Mval, Aval=tbtout$Aval, counts=counts,  group = group))
 }

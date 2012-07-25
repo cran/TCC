@@ -3,7 +3,8 @@ For comparison of tag count data, including RNA-seq and ChIP-seq
 analysis, removal of differentially represented tags before normalization.
 This package provides a code base to do such analysis by using
 edgeR and baySeq packages. In addition, differential gene expression
-simulation data generation code is provided using NBPSeq.
+data from Arabidopsis thaliana is taken from NBPSeq package for
+simulation data generation.
 
 edgeR and baySeq are available from bioconductor and can be installed by
 source("http://bioconductor.org/biocLite.R") 

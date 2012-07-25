@@ -1,6 +1,5 @@
 import(baySeq)
 import(edgeR)
-import(NBPSeq)
 
 ## Classes
 

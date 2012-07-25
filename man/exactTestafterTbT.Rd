@@ -21,8 +21,9 @@
 \value{
     This function return a list of data, norm_f_TbT, counts, and group. The data is a 
     data frame containing the names and counts
-    as the input, table output by the exactTest(), FDR calculated by
-    p.adjust(), and rank by the FDR. norm_f_TbT is calculated by do_TbT().
+    as the input, table output by the exactTest(), 
+    FDR calculated by p.adjust(), and rank by the FDR. 
+    norm_f_TbT, Mval, and Aval are calculated by do_TbT().
     The counts and group are the copy of the input.
 
     \item{names}{As in the input argument.}
