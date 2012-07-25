@@ -35,15 +35,21 @@ do_TbT <- function(data, data.cl, sample_num = 10000){
     logratio <- log2(apply(data[,data.cl==2], 1, mean)) - log2(apply(data[,data.cl==1], 1, mean))
     PA <- sum(logratio[rank_bayseq < NDEG] < 0)/NDEG
 
-    retval <- list(norm_f_TbT, PDEG, PA, obj_DEGn, obj_DEGy, norm_f_TMM, norm_f_TbTorg)
-    names(retval) <- c("norm_f_TbT", "PDEG", "PA", "nonDEG_posi", "DEG_posi", "norm_f_TMM", "norm_f_TbTorg")
+    retval <- list(norm_f_TbT, PDEG, PA, obj_DEGn, obj_DEGy, norm_f_TMM, norm_f_TbTorg, data.cl, data)
+    names(retval) <- c("norm_f_TbT", "PDEG", "PA", "nonDEG_posi", "DEG_posi", "norm_f_TMM", "norm_f_TbTorg", "data.cl", "data")
     return(retval)
 }
-exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.used = 0.5, grid.length=500){
+
+edgeR_Version <-sessionInfo()$otherPkgs$edgeR$Version
+edgeR_v <- as.integer(strsplit(edgeR_Version, '.', fixed=TRUE)[[1]])
+
+if (edgeR_v[[1]] == 2 & edgeR_v[[2]] <= 6)
+exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.used = NULL, span = NULL, grid.length=500){
     tbtout <- do_TbT(counts, group, sample_num)
     d <- DGEList(counts=counts, group=group)
     d$samples$norm.factors <- tbtout$norm_f_TbT 
     d <- estimateCommonDisp(d)
+    if(is.null(span) == FALSE) prop.used <- span else if(is.null(prop.used)) prop.used <- 0.5
     d <- estimateTagwiseDisp(d, prop.used=prop.used, grid.length=grid.length) 
     out <- exactTest(d)
     if(is.vector(out$table$PValue)){#for current edgeR
@@ -54,7 +60,27 @@ exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.use
         warning("PValue was not available")
     }
     rank_edgeR <- rank(FDR)
-    retval <- cbind(names, counts, out$table, FDR, rank_edgeR) 
-    return(retval)
+    retval <- cbind(names, out$table, FDR, rank_edgeR) 
+    return(list(data=retval, norm_f_TbT=tbtout$norm_f_TbT, counts=counts,  group = group))
 }
 
+if (edgeR_v > 2 | edgeR_v[[2]] >= 7)
+exactTestafterTbT <- function(names, counts, group, sample_num = 10000, prop.used = NULL, span = NULL, grid.length=500){
+    tbtout <- do_TbT(counts, group, sample_num)
+    d <- DGEList(counts=counts, group=group)
+    d$samples$norm.factors <- tbtout$norm_f_TbT 
+    d <- estimateCommonDisp(d)
+    if(is.null(prop.used) == FALSE) span <- prop.used
+    d <- estimateTagwiseDisp(d, span=span, grid.length=grid.length) 
+    out <- exactTest(d)
+    if(is.vector(out$table$PValue)){#for current edgeR
+        FDR <- p.adjust(out$table$PValue, method="BH")
+    }else if(is.vector(out$table$p.value)){#for older edgeR
+        FDR <- p.adjust(out$table$p.value, method="BH")
+    }else{#something strange
+        warning("PValue was not available")
+    }
+    rank_edgeR <- rank(FDR)
+    retval <- cbind(names, out$table, FDR, rank_edgeR) 
+    return(list(data=retval, norm_f_TbT=tbtout$norm_f_TbT, counts=counts,  group = group))
+}

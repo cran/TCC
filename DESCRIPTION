@@ -1,6 +1,6 @@
 Package: TCC
-Version: 0.2
-Date: 2012-05-07
+Version: 0.3
+Date: 2012-07-25
 Title: TCC: tag count comparison package
 Author: Koji Kadota, Tomoaki Nishiyama, Kentaro Shimizu
 Maintainer: Tomoaki Nishiyama <tomoakin@staff.kanazawa-u.ac.jp>
@@ -10,6 +10,6 @@ Description: This package provides normalization method of tag count
 Depends: R (>= 2.14.0), edgeR (>= 2.4.6), baySeq, NBPSeq
 License: GPL-2
 Copyright: Authors listed above
-Packaged: 2012-05-08 14:12:28 UTC; tomoaki
+Packaged: 2012-07-26 00:06:50 UTC; tomoaki
 Repository: CRAN
-Date/Publication: 2012-05-09 04:06:52
+Date/Publication: 2012-07-26 05:29:59

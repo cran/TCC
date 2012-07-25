@@ -41,6 +41,8 @@ NBsample <- function(DEG_foldchange = 4, repA = 3, repB = 3, Ngene = 3000, PDEG 
     RAW <- out[obj,]
     DEG_posi <- DEG_posi_org[obj]
     nonDEG_posi <- nonDEG_posi_org[obj]
-    return(cbind(RAW, DEG_posi))
+    retval <- list(RAW, DEG_posi, nonDEG_posi)
+    names(retval) <- c("data", "DEG_posi", "nonDEG_posi")
+    return(retval)
 }
 

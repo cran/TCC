@@ -10,7 +10,8 @@ import(NBPSeq)
 export(
   NBsample,
   do_TbT,
-  exactTestafterTbT
+  exactTestafterTbT,
+  MAplot
 )
 
 ## constants

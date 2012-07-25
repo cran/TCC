@@ -16,9 +16,9 @@
 }
 \examples{
     sample <- NBsample()
-    \dontshow{out <- do_TbT(sample[,1:6], c(1,1,1,2,2,2), 10)}
+    \dontshow{out <- do_TbT(sample$data, c(1,1,1,2,2,2), 10)}
     \dontrun{
-    out <- do_TbT(sample[,1:6], c(1,1,1,2,2,2)) }
+    out <- do_TbT(sample$data, c(1,1,1,2,2,2)) }
 }
 \seealso{\code{\link{edgeR}}}
 % vim: syntax=tex

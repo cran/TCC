@@ -1,3 +1,9 @@
+Return value of the NBsample() method changed to a list
+
+MAplot() method added
+
+Support of edgeR_2.7
+
 Packaging for release from CRAN is underway.
 
 The paper describing TbT (TMM-baySeq-TMM) pipeline is published in 
