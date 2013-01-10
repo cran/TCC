@@ -1,4 +1,3 @@
-% $Id:$
 \name{MAplot}
 \alias{MAplot}
 \title{plot a MA plot}
@@ -13,11 +12,11 @@
   \item{FDR_threshold}{Points below the threshold will be plotted in red.}
 }
 \examples{
-  sample <- NBsample()
-  \dontrun{
-  out <- exactTestafterTbT(paste("gene",1:nrow(sample$data), sep=""), sample$data, c(1,1,1,2,2,2)) }
-  \dontshow{out <- exactTestafterTbT(paste("gene",1:nrow(sample$data), sep=""), sample$data, c(1,1,1,2,2,2), 10)}
-  MAplot(out)
+\dontrun{
+sample <- NBsample()
+out <- exactTestafterTbT(paste("gene",1:nrow(sample$data), sep=""), 
+                        sample$data, c(1,1,1,2,2,2)) 
+MAplot(out)
+}
 }
 \seealso{\code{\link{edgeR}}}
-% vim: syntax=tex

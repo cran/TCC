@@ -1,22 +1,19 @@
-% $Id:$
 \name{exactTestafterTbT}
 \alias{exactTestafterTbT}
 \title{exactTest after TMM-baySeq-TMM procedure}
 \description{
   This function perform exact test with edgeR after TMM-baySeq-TMM procedure
   via \code{\link{do_TbT}}.
+  This function will be obsoleted. Use \link{TCC-class} based methods instead.
 }
 \usage{
-   exactTestafterTbT(names, counts, group, sample_num=10000, prop.used=NULL, span=NULL, grid.length=500)
+   exactTestafterTbT(names, counts, group, sample_num=10000)
 }
 \arguments{
 \item{names}{A vector containing the name of each element eg gene}
 \item{counts}{The data matrix to be analysed. Numerical data only}
 \item{group}{A vector describing the data class for columns in data}
 \item{sample_num}{Sample number for Bayesian estimation}
-\item{prop.used}{parameter passed to estimate dispersion (default 0.5 for edgeR =< 2.6)}
-\item{span}{parameter passed to estimate dispersion (changed from prop.used after edgeR 2.7)}
-\item{grid.length}{parameter passed to estimate dispersion}
 }
 \value{
     This function return a list of data, norm_f_TbT, counts, and group. The data is a 
@@ -39,9 +36,9 @@
 }
 
 \examples{
-  sample <- NBsample()
-  \dontrun{
-  out <- exactTestafterTbT(paste("gene",1:nrow(sample$data), sep=""), sample$data, c(1,1,1,2,2,2)) }
-  \dontshow{out <- exactTestafterTbT(paste("gene",1:nrow(sample$data), sep=""), sample$data, c(1,1,1,2,2,2), 10)}
+\dontrun{
+sample <- NBsample()
+out <- exactTestafterTbT(paste("gene",1:nrow(sample$data), sep=""), 
+                         sample$data, c(1,1,1,2,2,2)) 
 }
-% vim: syntax=tex
+}

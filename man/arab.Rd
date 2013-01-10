@@ -1,13 +1,13 @@
 \name{arab}
 \docType{data}
 \alias{arab}
-\title{Arabidopsis RNA-Seq Data Set}
+\title{Arabidopsis RNA-Seq data set}
 \description{
   This dataset was imported from NBPSeq package and the following
   explanation is verbatim copy of their explanation:
 
   An RNA-Seq dataset from a pilot study of the defense response of
-  Arabidopsis to infection by bacteria. We performed RNA-Seq
+  \emph{Arabidopsis} to infection by bacteria. We performed RNA-Seq
   experiments on three independent biological samples from each of
   the two treatment groups.  The matrix contains the frequencies of
   RNA-Seq reads mapped to genes in a reference database. Rows
@@ -18,10 +18,10 @@
   This dataset was imported from NBPSeq package and the following
   explanation is verbatim copy of their explanation:
 
-  We challenged leaves of Arabidopsis with the defense-eliciting
+  We challenged leaves of \emph{Arabidopsis} with the defense-eliciting
   \emph{\eqn{\Delta}hrcC} mutant of \emph{Pseudomonas syringae} pathovar
   \emph{tomato}
-  DC3000.  We also infiltrated leaves of Arabidopsis with 10mM
+  DC3000.  We also infiltrated leaves of \emph{Arabidopsis} with 10mM
   MgCl2 as a mock inoculation. RNA was isolated 7 hours after
   inoculation, enriched for mRNA and prepared for RNA-Seq. We
   sequenced one replicate per channel on the Illumina Genome
@@ -31,7 +31,7 @@
   36-cycle sequencing reaction, that we trimmed to 25mers.  We
   used an in-house computational pipeline to process, align, and
   assign RNA-Seq reads to genes according to a reference database
-  we developed for Arabidopsis.
+  we developed for \emph{Arabidopsis}.
 }
 \usage{data(arab)}
 \format{A 26222 by 6 matrix of RNA-Seq read frequencies.}
