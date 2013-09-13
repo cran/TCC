@@ -1,13 +1,9 @@
 \name{estimateDE}
 \alias{estimateDE}
 \title{Estimate degrees of differential expression (DE) for individual genes}
-\synopsis{
-estimateDE(tcc, test.method = NULL, FDR = NULL, 
-           samplesize = 10000, processors = NULL)
-}
 \usage{
-estimateDE(tcc, test.method = c("edger", "deseq", "bayseq"), FDR = 0.1, 
-           samplesize = 10000, processors = NULL)
+estimateDE(tcc, test.method = NULL, FDR = NULL,  
+           samplesize = 10000, cl = NULL, \dots)
 }
 \description{
 This function calculates \eqn{p}-values (or the related statistics) for
@@ -30,9 +26,10 @@ implemented in other R packages.
 	\item{samplesize}{numeric value specifying the sample size for
 	 estimating the prior parameters if \code{test.method = "bayseq"}.
 	 See the \code{\link[baySeq]{getPriors.NB}} function for details.}
-	\item{processors}{numeric value or 'snow' object for using multi
-	 processors if \code{test.method = "bayseq"}. See the
+	\item{cl}{cluster object of 'snow' package for using multiple
+	 processors. Effective when \code{test.method = "bayseq"}. See the
 	 \code{\link[baySeq]{getPriors.NB}} function for details.}
+        \item{\dots}{parameters to pass to edgeR, DESeq, or baySeq.}
 }
 \details{
 \code{estimateDE} function is generally used after the 
@@ -84,28 +81,24 @@ A \code{\link{TCC-class}} object containing following fields:
 # with the DEGES/edgeR normalization factors.
 # For retrieving the summaries of DE results, we recommend to use
 # the getResult function.
-\dontrun{
 data(hypoData)
-group <- c(3, 3)
+hypoData <- hypoData[1:100*10,]
+group <- c(1, 1, 1, 3, 3, 3)
 tcc <- new("TCC", hypoData, group)
 tcc <- calcNormFactors(tcc)
 tcc <- estimateDE(tcc, test.method = "edger", FDR = 0.1)
 head(tcc$stat$p.value)
 head(tcc$stat$q.value)
 head(tcc$estimatedDEG)
-}
 
 
 # Analyzing a simulation data for comparing two groups
 # (G1 vs. G2) without any replicates
 # The DE analysis is performed by an negative binomial (NB) test
 # in DESeq coupled with the DEGES/DESeq normalization factors.
-\dontrun{
-data(hypoData)
-group <- c(1, 1)
+group <- c(1, 2)
 tcc <- new("TCC", hypoData[, c(1, 4)], group)
 tcc <- calcNormFactors(tcc)
 tcc <- estimateDE(tcc, test.method = "deseq", FDR = 0.1)
-}
 }
 \keyword{methods}

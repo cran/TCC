@@ -16,11 +16,13 @@ export(
   estimateDE,
   exactTestafterTbT,
   filterLowCountGenes,
-  generateSimulationData,
   getNormalizedData,
   getResult,
   MAplot,
   NBsample,
   plotFCPseudocolor,
-  plot.TCC
+  plot.TCC,
+  simulateReadCounts,
+  subset,
+  subset.TCC
 )

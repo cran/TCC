@@ -1,0 +1,544 @@
+
+R version 3.0.1 (2013-05-16) -- "Good Sport"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(TCC)
+Loading required package: Biobase
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: 'BiocGenerics'
+
+The following objects are masked from 'package:parallel':
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following object is masked from 'package:stats':
+
+    xtabs
+
+The following objects are masked from 'package:base':
+
+    Filter, Find, Map, Position, Reduce, anyDuplicated, as.data.frame,
+    cbind, colnames, duplicated, eval, get, intersect, lapply, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, rank,
+    rbind, rep.int, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unlist
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: locfit
+locfit 1.5-9.1 	 2013-03-22
+> data(hypoData)
+> set.seed(1834016)
+> 
+> df<-data.frame(row.names = paste('a', rownames(hypoData), sep=""),
++   A1 = hypoData[,1], A2 = hypoData[,2], A3 = hypoData[,3],
++   B1 = hypoData[,4], B2 = hypoData[,5], B3 = hypoData[,6])
+> head(df)
+          A1  A2  A3  B1  B2  B3
+agene_1   34  45 122  16  14  29
+agene_2  358 388  22  36  25  68
+agene_3 1144 919 990 374 480 239
+agene_4    0   0  44  18   0   0
+agene_5   98  48  17   1   8   5
+agene_6  296 282 216  86  62  69
+> tccdata=new("TCC",df,c(1, 1, 1, 2, 2, 2))
+> head(tccdata$gene_id)
+[1] "agene_1" "agene_2" "agene_3" "agene_4" "agene_5" "agene_6"
+> 
+> df<-data.frame(row.names = paste('a', rownames(hypoData), sep=""),
++   A1 = hypoData[,1], A2 = hypoData[,2], A3 = hypoData[,3],
++   B1 = hypoData[,4], B2 = hypoData[,5], B3 = hypoData[,6])
+> m<-cbind(df[[1]], df[[2]], df[[3]],df[[4]],df[[5]],df[[6]])
+> head(m)
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]   34   45  122   16   14   29
+[2,]  358  388   22   36   25   68
+[3,] 1144  919  990  374  480  239
+[4,]    0    0   44   18    0    0
+[5,]   98   48   17    1    8    5
+[6,]  296  282  216   86   62   69
+> tccdata=new("TCC", m, c(1, 1, 1, 2, 2, 2))
+> head(tccdata$gene_id)
+[1] "gene_1" "gene_2" "gene_3" "gene_4" "gene_5" "gene_6"
+> 
+> group <- c(1, 1, 1, 2, 2, 2)
+> tcc <- new("TCC", hypoData, group)
+> cat("tcc$count: ")
+tcc$count: > cat(dim(tcc$count))
+1000 6> cat("\n")
+
+> tccf <- filterLowCountGenes(tcc)
+> cat("dim(tcc$count): ")
+dim(tcc$count): > cat(dim(tccf$count))
+996 6> cat("\n")
+
+> cat("dim(hypoData): ")
+dim(hypoData): > cat(dim(hypoData))
+1000 6> cat("\n")
+
+> cat("dim(hypoData[as.logical(rowSums(hypoData)>0),]): ")
+dim(hypoData[as.logical(rowSums(hypoData)>0),]): > cat(dim(hypoData[as.logical(rowSums(hypoData) > 0),]))
+996 6> cat("\n")
+
+> 
+> tcc <- simulateReadCounts(Ngene = 100, PDEG = 0.2, DEG.assign = c(0.9, 0.1))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  100 )
+TCC::INFO: (group  :  1, 1, 1, 2, 2, 2 )
+TCC::INFO: (foldhcange distribution :  uniform )
+TCC::INFO: (PDEG        :  0.18, 0.02 )
+> #  group <- c(3, 3)
+> #  tcc <- new("TCC", hypoData, c(3,3))
+> show(tcc)
+Count:
+       G1_rep1 G1_rep2 G1_rep3 G2_rep1 G2_rep2 G2_rep3
+gene_1    1731    1798    1504     514     574     526
+gene_2    1107     844     897     273     288     331
+gene_3      75      46      69      15      10      27
+gene_4      21      37      49       5      12       4
+gene_5       4       1       0       0       4       1
+gene_6      37      45      99      15      22      31
+
+Sample:
+        group norm.factors lib.sizes
+G1_rep1     1            1     11941
+G1_rep2     1            1     12200
+G1_rep3     1            1     12627
+G2_rep1     2            1      6952
+G2_rep2     2            1      7399
+G2_rep3     2            1      6961
+
+> sub_tcc <- subset(tcc,1:10*10)
+> show(sub_tcc)
+Count:
+        G1_rep1 G1_rep2 G1_rep3 G2_rep1 G2_rep2 G2_rep3
+gene_10    1991    2028    2053     529     517     605
+gene_20      35      71      33     108       1       9
+gene_30      20      24      19      21      37      28
+gene_40      62      63      71      71      73      74
+gene_50      47      59      39      49      51      92
+gene_60     122     140     160     137     130     161
+
+Sample:
+        group norm.factors lib.sizes
+G1_rep1     1            1      2354
+G1_rep2     1            1      2476
+G1_rep3     1            1      2526
+G2_rep1     2            1      1153
+G2_rep2     2            1       871
+G2_rep3     2            1      1075
+
+> sub2_tcc <- tcc[1:10*10-1]
+> show(sub2_tcc)
+Count:
+        G1_rep1 G1_rep2 G1_rep3 G2_rep1 G2_rep2 G2_rep3
+gene_9       68     391     239      33      34      22
+gene_19       1       1       4      15       5       8
+gene_29       0       0      23       1      44       1
+gene_39       0       1       4       4       1       4
+gene_49      10      10       4       6       1      10
+gene_59       1       2       0       0       4       0
+
+Sample:
+        group norm.factors lib.sizes
+G1_rep1     1            1       158
+G1_rep2     1            1       593
+G1_rep3     1            1       429
+G2_rep1     2            1       160
+G2_rep2     2            1       252
+G2_rep3     2            1       196
+
+> tcc$calcNormFactors(norm.method = "tmm", test.method = "bayseq")
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ bayseq - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> tcc$estimateDE(test.method = "edger", FDR = 0.1)
+TCC::INFO: Identifying DE genes using edger ...
+TCC::INFO: Done.
+> 
+> sub_tcc <- subset(tcc,1:10*10)
+  [1] 1 1 1 1 0 1 0 1 1 1 1 1 0 0 1 1 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ [38] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+ [75] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+> show(sub_tcc)
+Count:
+        G1_rep1 G1_rep2 G1_rep3 G2_rep1 G2_rep2 G2_rep3
+gene_10    1991    2028    2053     529     517     605
+gene_20      35      71      33     108       1       9
+gene_30      20      24      19      21      37      28
+gene_40      62      63      71      71      73      74
+gene_50      47      59      39      49      51      92
+gene_60     122     140     160     137     130     161
+
+Sample:
+        group norm.factors lib.sizes
+G1_rep1     1    0.6885772  1620.911
+G1_rep2     1    0.6922255  1713.950
+G1_rep3     1    0.6921484  1748.367
+G2_rep1     2    1.3032154  1502.607
+G2_rep2     2    1.1987110  1044.077
+G2_rep3     2    1.4251225  1532.007
+
+DEGES:
+   Pipeline       : 
+   Execution time :  sec
+   Threshold type :  < 
+   Potential PDEG : 
+
+[1] 5.110865
+Results:
+  gene_id   a.value     m.value      p.value      q.value rank estimatedDEG
+1 gene_10 10.069066 -1.52946908 1.806655e-14 1.735809e-12    1            1
+2 gene_20  5.352768 -0.05722729 7.363558e-01 1.000000e+00   62            0
+3 gene_30  4.674950  0.86330819 6.732386e-01 1.000000e+00   57            0
+4 gene_40  6.137549  0.51723877 9.731833e-01 1.000000e+00   88            0
+5 gene_50  5.808930  0.72308838 6.244810e-01 1.000000e+00   48            0
+6 gene_60  7.166883  0.36854275 7.479358e-01 1.000000e+00   63            0
+
+> 
+> show(tcc[c("gene_13", "gene_17", "gene_23")])
+  [1] 1 1 1 1 0 1 0 1 1 1 1 1 0 0 1 1 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ [38] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+ [75] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+Count:
+        G1_rep1 G1_rep2 G1_rep3 G2_rep1 G2_rep2 G2_rep3
+gene_13       9       0       6       0       0       1
+gene_17       4       5       2      11       0       8
+gene_23      34      34       6       1      10       1
+
+Sample:
+        group norm.factors lib.sizes
+G1_rep1     1    0.6885772 32.363128
+G1_rep2     1    0.6922255 26.996794
+G1_rep3     1    0.6921484  9.690077
+G2_rep1     2    1.3032154 15.638585
+G2_rep2     2    1.1987110 11.987110
+G2_rep3     2    1.4251225 14.251225
+
+DEGES:
+   Pipeline       : 
+   Execution time :  sec
+   Threshold type :  < 
+   Potential PDEG : 
+
+[1] 3.174983
+Results:
+  gene_id   a.value   m.value    p.value    q.value rank estimatedDEG
+1 gene_13 0.6288523 -3.676651 0.05610405 0.31168916   18            0
+2 gene_17 2.3145673  1.295637 0.69112281 1.00000000   59            0
+3 gene_23 3.3755837 -1.596905 0.01560963 0.09756018   16            1
+
+> result <- getResult(sub_tcc, sort = TRUE)
+[1] 5.110865
+> print(head(result))
+    gene_id    a.value     m.value      p.value      q.value rank estimatedDEG
+1   gene_10 10.0690664 -1.52946908 1.806655e-14 1.735809e-12    1            1
+9   gene_90  5.9284985  1.16354675 2.666371e-01 8.332410e-01   32            0
+10 gene_100  5.6123940 -0.02573024 3.861672e-01 9.978664e-01   38            0
+5   gene_50  5.8089296  0.72308838 6.244810e-01 1.000000e+00   48            0
+7   gene_70  0.1585319 -2.39007117 6.652762e-01 1.000000e+00   56            0
+3   gene_30  4.6749496  0.86330819 6.732386e-01 1.000000e+00   57            0
+> 
+> tcc <- simulateReadCounts(Ngene = 100, PDEG = 0.2, DEG.assign = c(0.9, 0.1))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  100 )
+TCC::INFO: (group  :  1, 1, 1, 2, 2, 2 )
+TCC::INFO: (foldhcange distribution :  uniform )
+TCC::INFO: (PDEG        :  0.18, 0.02 )
+> tcc <- calcNormFactors(tcc)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> tcc <- estimateDE(tcc, test.method = "bayseq", FDR = 0.1, samplesize = 100)
+TCC::INFO: Identifying DE genes using bayseq ...
+TCC::INFO: Done.
+> result <- getResult(tcc, sort = TRUE)
+[1] 0.347561
+> print(head(result), digits=5)
+   gene_id a.value m.value    p.value    q.value rank estimatedDEG
+3   gene_3  9.7194 -2.4935 0.00035223 0.00035223    1            1
+14 gene_14  6.8861 -3.0019 0.00061029 0.00048126    2            1
+6   gene_6  4.9875 -2.7988 0.00534434 0.00210229    3            1
+9   gene_9  4.1085 -3.0760 0.01055883 0.00421642    4            1
+11 gene_11  4.3712 -3.1820 0.01695813 0.00676476    5            1
+15 gene_15  8.5003 -1.8081 0.03742735 0.01187519    6            1
+> table(tcc$estimatedDEG) 
+
+ 0  1 
+87 13 
+> png("plot4b.png", 600, 500)
+> plot(tcc)
+[1] 0.347561
+> dev.off()
+null device 
+          1 
+> 
+> tcc <- simulateReadCounts(Ngene = 100, PDEG = 0.2, DEG.assign = c(0.9, 0.1))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  100 )
+TCC::INFO: (group  :  1, 1, 1, 2, 2, 2 )
+TCC::INFO: (foldhcange distribution :  uniform )
+TCC::INFO: (PDEG        :  0.18, 0.02 )
+> tcc <- calcNormFactors(tcc)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> tcc <- estimateDE(tcc, test.method = "edger", FDR = 0.1)
+TCC::INFO: Identifying DE genes using edger ...
+TCC::INFO: Done.
+> result <- getResult(tcc, sort = TRUE)
+[1] 0.6367243
+> print(head(result))
+   gene_id   a.value   m.value      p.value      q.value rank estimatedDEG
+9   gene_9  7.398564 -3.089512 1.159385e-13 1.159385e-11    1            1
+8   gene_8  9.167551 -1.979781 1.493112e-09 7.465562e-08    2            1
+6   gene_6  9.253955 -1.915356 2.742932e-09 9.143106e-08    3            1
+12 gene_12  7.165079 -2.403530 1.391984e-08 3.479960e-07    4            1
+7   gene_7  7.190636 -2.246915 3.799004e-08 7.598008e-07    5            1
+2   gene_2 10.630217 -1.937970 5.726209e-08 9.543681e-07    6            1
+> table(tcc$estimatedDEG) 
+
+ 0  1 
+82 18 
+> png("plot4.png", 600, 500)
+> plot(tcc)
+[1] 0.6367243
+> dev.off()
+null device 
+          1 
+> 
+> data(hypoData_mg)
+> group <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+> tcc <- new("TCC", hypoData_mg, group)
+> design <- model.matrix(~ as.factor(group))
+> coef <- 2:length(unique(group))
+> tcc <- calcNormFactors(tcc, norm.method = "tmm", test.method = "edger",
++                         iteration = 1, design = design, coef = coef)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> #tcc$norm.factors
+> ## this will differ depending on edgeR versions
+> 
+> tcc <- simulateReadCounts(Ngene = 100, PDEG = 0.2, DEG.assign = c(0.9, 0.1),replicate=c(1,1))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  100 )
+TCC::INFO: (group  :  1, 2 )
+TCC::INFO: (foldhcange distribution :  uniform )
+TCC::INFO: (PDEG        :  0.18, 0.02 )
+> tcc <- calcNormFactors(tcc, norm.method = "deseq", test.method = "deseq",
++                           FDR = 0.1, floorPDEG = 0.05)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : deseq - [ deseq - deseq ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> cat("tcc$norm.factors: ")
+tcc$norm.factors: > cat(tcc$norm.factors)
+1.060704 0.9392961> cat("\n")
+
+> cat("tcc$stat$execution.time: ")
+tcc$stat$execution.time: > cat(tcc$stat$execution.time)
+> cat("\n")
+
+> 
+> tcc2 <- simulateReadCounts(Ngene = 100, PDEG = 0.2, DEG.assign = c(0.9, 0.1))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  100 )
+TCC::INFO: (group  :  1, 1, 1, 2, 2, 2 )
+TCC::INFO: (foldhcange distribution :  uniform )
+TCC::INFO: (PDEG        :  0.18, 0.02 )
+> tcc <- calcNormFactors(tcc2, norm.method = "deseq", test.method = "deseq",
++                         FDR = 0.1, floorPDEG = 0.05)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : deseq - [ deseq - deseq ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> cat("tcc$norm.factors: ")
+tcc$norm.factors: > cat(tcc$norm.factors)
+0.9560651 1.133139 0.9758629 0.9473964 0.9718567 1.01568> cat("\n")
+
+> cat("tcc$stat$execution.time: ")
+tcc$stat$execution.time: > cat(tcc$stat$execution.time)
+> cat("\n")
+
+> 
+> tcc <- calcNormFactors(tcc2, iteration = 3)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 3 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> cat("tcc$norm.factors: ")
+tcc$norm.factors: > cat(tcc$norm.factors)
+0.8776823 1.12015 0.9346365 1.014701 1.00042 1.05241> cat("\n")
+
+> cat("tcc$stat$execution.time: ")
+tcc$stat$execution.time: > cat(tcc$stat$execution.time)
+> cat("\n")
+
+> 
+> tcc <- calcNormFactors(tcc2, norm.method = "tmm", test.method = "edger")
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> cat("tcc$norm.factors: ")
+tcc$norm.factors: > cat(tcc$norm.factors)
+0.9149296 1.108213 0.9625698 0.881606 0.9852985 1.147383> cat("\n")
+
+> cat("tcc$stat$execution.time: ")
+tcc$stat$execution.time: > cat(tcc$stat$execution.time)
+> cat("\n")
+
+> 
+> tcc <- calcNormFactors(tcc2, norm.method = "tmm", test.method = "bayseq")
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ bayseq - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> cat("tcc$norm.factors: ")
+tcc$norm.factors: > cat(tcc$norm.factors)
+0.9056277 1.096987 0.9831748 0.8653313 1.037738 1.111141> cat("\n")
+
+> cat("tcc$stat$execution.time: ")
+tcc$stat$execution.time: > cat(tcc$stat$execution.time)
+> cat("\n")
+
+> 
+> group <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+> tcc <- new("TCC", hypoData_mg, group)
+> ###  Normalization  ###
+> design <- model.matrix(~ as.factor(group))
+> coef <- 2:length(unique(group))
+> tcc <- calcNormFactors(tcc, norm.method = "tmm", test.method = "edger",
++                         iteration = 1, design = design, coef = coef)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> ###  DE analysis  ###
+> fit1 <- count ~ condition
+> fit0 <- count ~ 1
+> tcc <- estimateDE(tcc, test.method = "deseq",
++                   FDR = 0.1, fit0 = fit0, fit1 = fit1)
+TCC::INFO: Identifying DE genes using deseq ...
+TCC::INFO: Done.
+> result <- getResult(tcc, sort = TRUE)
+> #head(result)
+> ## this will differ depending on edgeR versions
+> #table(tcc$estimatedDEG)
+> 
+> group <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+> tcc <- new("TCC", hypoData_mg, group)
+> ###  Normalization  ###
+> design <- model.matrix(~ as.factor(group))
+> coef <- 2:length(unique(group))
+> tcc <- calcNormFactors(tcc, norm.method = "tmm", test.method = "edger",
++                         iteration = 1, design = design, coef = coef)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> 
+> group <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+> tcc <- new("TCC", hypoData_mg, group)
+> ###  Normalization  ###
+> design <- model.matrix(~ as.factor(group))
+> coef <- 2:length(unique(group))
+> tcc <- calcNormFactors(tcc, norm.method = "tmm", test.method = "edger",
++                         iteration = 1, design = design, coef = coef)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 1 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> ###  DE analysis  ###
+> tcc <- estimateDE(tcc, test.method = "edger",
++                   FDR = 0.1, design = design, coef = coef)
+TCC::INFO: Identifying DE genes using edger ...
+TCC::INFO: Done.
+> result <- getResult(tcc, sort = TRUE)
+> #head(result)
+> ## this will differ depending on edgeR versions
+> #table(tcc$estimatedDEG)
+> 
+> tcc <- simulateReadCounts(Ngene = 100, PDEG = 0.3,
++                        DEG.assign = c(0.6, 0.2, 0.2),
++                        DEG.foldchange = c(3, 10, 6),
++                        replicates = c(2, 4, 3))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  100 )
+TCC::INFO: (group  :  1, 1, 2, 2, 2, 2, 3, 3, 3 )
+TCC::INFO: (foldhcange distribution :  uniform )
+TCC::INFO: (PDEG        :  0.18, 0.06, 0.06 )
+> cat("dim(tcc$count): ")
+dim(tcc$count): > cat(dim(tcc$count))
+100 9> cat("\n")
+
+> cat("tcc$group$group: ")
+tcc$group$group: > cat(tcc$group$group)
+1 1 2 2 2 2 3 3 3> cat("\n")
+
+> cat("tcc$count:\n")
+tcc$count:
+> print(head(tcc$count))
+       G1_rep1 G1_rep2 G2_rep1 G2_rep2 G2_rep3 G2_rep4 G3_rep1 G3_rep2 G3_rep3
+gene_1     163     210      53      47      68      32      13      48      42
+gene_2       5      11       5       2       0       4       3       3       6
+gene_3     232     173      46      51      74      45      80      40      61
+gene_4      91      98      43      40      45      40      31      25      40
+gene_5     206     216      35      28      65      19      69      31     131
+gene_6       0       0       1       0       1       0       2       0      16
+> plotFCPseudocolor(tcc)
+> plot(tcc)
+[1] 0.4567399
+[1] 0.4567399
+[1] 0.2595467
+> 
+> tcc <- simulateReadCounts(Ngene = 200, PDEG = 0.30,
++                               DEG.assign = c(0.85, 0.15),
++                               DEG.foldchange = list(min = c(1.2, 1.2),
++                                                     shape = c(2.0, 2.0),
++                                                     scale = c(0.5, 0.5)),
++                               replicates = c(2, 2))
+TCC::INFO: Generating simulation data under NB distribution ...
+TCC::INFO: (genesizes   :  200 )
+TCC::INFO: (group  :  1, 1, 2, 2 )
+TCC::INFO: (foldhcange distribution :  gamma )
+TCC::INFO: (PDEG        :  0.255, 0.045 )
+> tcc <- calcNormFactors(tcc, norm.method = "tmm", test.method = "edger",
++                        iteration = 3, FDR = 0.1, floorPDEG = 0.05)
+TCC::INFO: Calculating normalization factors using DEGES
+TCC::INFO: (iDEGES pipeline : tmm - [ edger - tmm ] X 3 )
+TCC::INFO: First normalization done.
+TCC::INFO: Done.
+> plot(tcc, median.lines = TRUE)
+[1] 0.457113
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 65.859   0.122  66.272 

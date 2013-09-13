@@ -9,14 +9,9 @@ This function calculates normalization factors using a specified
 multi-step normalization method from a \link{TCC-class} object.
 The procedure can generally be described as the \eqn{STEP1-(STEP2-STEP3)_{n}}{STEP1-(STEP2-STEP3)n} pipeline.
 }
-\synopsis{
-calcNormFactors(tcc, ...)
-}
 \usage{
-calcNormFactors(tcc, norm.method = c("tmm", "deseq"), 
-                test.method = c("edger", "deseq", "bayseq"),
-                iteration = 1, FDR = 0.1, floorPDEG = 0.05, 
-                samplesize = 10000, processors = NULL)
+\S4method{calcNormFactors}{TCC}(tcc, norm.method = NULL, test.method = NULL,
+    iteration = TRUE, FDR = NULL, floorPDEG = NULL, samplesize = 10000, cl = NULL, \dots)
 }
 \arguments{
 	\item{tcc}{\link{TCC-class} object.}
@@ -50,11 +45,19 @@ calcNormFactors(tcc, norm.method = c("tmm", "deseq"),
 	\item{samplesize}{numeric value specifying the sample size for estimating
 	 the prior parameters if \code{test.method = "bayseq"}. See 
 	 the \code{\link[baySeq]{getPriors.NB}} function for details.}
-	\item{processors}{numeric value or 'snow' object for using multi 
-	 processors if \code{test.method = "bayseq"}. See the 
+	\item{cl}{cluster object of 'snow' package for using multiple
+	 processors. Effective if \code{test.method = "bayseq"}. See the 
 	\code{\link[baySeq]{getPriors.NB}} function for details.}
+        \item{\dots}{other parameter thant can be passed to 
+        \code{EdgeR::calcNormFactors}.}
 }
 \details{
+Typical usage are:
+calcNormFactors(tcc, norm.method = c("tmm", "deseq"), 
+                test.method = c("edger", "deseq", "bayseq"),
+                iteration = 1, FDR = 0.1, floorPDEG = 0.05, 
+                samplesize = 10000, processors = NULL)
+
 The \code{\link{calcNormFactors}} function is the main function in the TCC package. 
 Since this pipeline employs the DEG identification method at STEP2, 
 our multi-step strategy can eliminate the biased effect of potential DEGs 
@@ -95,7 +98,7 @@ In other words, the normalization factors in the \code{norm.factors} field are p
 # using the TbT method (the TMM-baySeq-TMM pipeline; Kadota et al., 2012)
 \dontrun{
 data(hypoData)
-group <- c(3, 3)
+group <- c(1, 1, 1, 2, 2, 2)
 tcc <- new("TCC", hypoData, group)
 tcc <- calcNormFactors(tcc, norm.method = "tmm", test.method = "bayseq")
 tcc$norm.factors
@@ -103,52 +106,41 @@ tcc$norm.factors
 
 # calculating normalization factors using the DEGES/edgeR method 
 # (the TMM-edgeR-TMM pipeline)
-\dontrun{
-tcc <- new("TCC", hypoData, group)
+data(hypoData)
+hypodata <- hypoData[1:100*10,]
+group <- c(1, 1, 1, 2, 2, 2)
+tcc <- new("TCC", hypodata, group)
 tcc <- calcNormFactors(tcc)
 tcc$norm.factors
-}
 
 # calculating normalization factors using the iterative DEGES/edgeR method 
 # (iDEGES/edgeR) with n = 3
-\dontrun{
-tcc <- new("TCC", hypoData, group)
+tcc <- new("TCC", hypodata, group)
 tcc <- calcNormFactors(tcc, iteration = 3)
 tcc$norm.factors
-}
 
 # calculating normalization factors for count data without replicates
-\dontrun{
-group <- c(1, 1)
-tcc <- new("TCC", hypoData[, c(1, 4)], group)
+group <- c(1, 2)
+tcc <- new("TCC", hypodata[, c(1, 4)], group)
 tcc <- calcNormFactors(tcc)
 tcc$norm.factors
-}
 
 # calculating normalization factors for another simulation data without 
 # replicates
-\dontrun{
-tcc <- generateSimulationData(group = c(1, 1))
+tcc <- simulateReadCounts(Ngene = 100, replicates = c(1, 1))
 tcc <- calcNormFactors(tcc)
 tcc$norm.factors
-}
 
 # calculating normalization factors for a simulation data using the 
 # TbT method with four processors
-\dontrun{
-tcc <- generateSimulationData()
-tcc <- calcNormFactors(tcc, norm.method = "tmm", 
-                       test.method = "bayseq", processors = 4)
-tcc$norm.factors
-}
 
 # calculating normalization factors for a simulation data using 
 # the TbT method with four processors (another way)
 \dontrun{
-tcc <- generateSimulationData()
+tcc <- simulateReadCounts()
 cl <- makeCluster(2, "SOCK")
 tcc <- calcNormFactors(tcc, norm.method = "tmm", 
-                       test.method = "bayseq", processors = cl)
+                       test.method = "bayseq", cl = cl)
 tcc$norm.factors
 }
 }
